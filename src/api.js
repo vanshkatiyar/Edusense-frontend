@@ -1,11 +1,11 @@
-const API_BASE_URL = process.env.REACT_APP_API_URL;
-
-if (!API_BASE_URL && process.env.NODE_ENV === 'development') {
-  console.warn("REACT_APP_API_URL is not defined. Using localhost as fallback.");
-}
+// --- THIS IS THE CRITICAL CHANGE ---
+// We are temporarily hardcoding the production URL to bypass environment variables.
+const API_BASE_URL = 'https://edusense-backend.onrender.com';
+// --- END OF CHANGE ---
 
 export const apiFetch = async (url, options = {}, token) => {
-  const fullUrl = `${API_BASE_URL || 'http://127.0.0.1:5000'}${url}`;
+  // Construct the full URL. It will now ALWAYS use the production backend URL.
+  const fullUrl = `${API_BASE_URL}${url}`;
   
   const headers = {
     'Content-Type': 'application/json',
