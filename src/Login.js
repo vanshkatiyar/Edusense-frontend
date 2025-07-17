@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useAuth } from './AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { apiFetch } from './api'; // --- NEW: Import our API utility ---
 import { RiLeafFill } from 'react-icons/ri';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // State for loading feedback
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,20 +18,17 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true); // Start loading
+    setLoading(true);
+    
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/login', {
+      // --- THIS IS THE CORRECTED CODE ---
+      // We now use apiFetch, which knows the production URL.
+      // We pass '/api/login' as the endpoint. The token is not needed for login.
+      const data = await apiFetch('/api/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
-
-      const data = await response.json(); // Always try to get JSON response
-
-      if (!response.ok) {
-        // Use the error message from backend if available
-        throw new Error(data.msg || 'Login failed. Please check your credentials.');
-      }
+      // --- END OF CORRECTION ---
       
       login(data.user, data.access_token);
       navigate(from, { replace: true });
@@ -38,7 +36,7 @@ export default function Login() {
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false); // Stop loading regardless of outcome
+      setLoading(false);
     }
   };
 
@@ -60,7 +58,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              disabled={loading} // Disable input while loading
+              disabled={loading}
             />
           </div>
           <div className="input-group">
@@ -71,7 +69,7 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              disabled={loading} // Disable input while loading
+              disabled={loading}
             />
           </div>
           <button type="submit" className="login-button" disabled={loading}>
