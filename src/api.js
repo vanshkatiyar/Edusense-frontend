@@ -1,9 +1,11 @@
-// The base URL for your API, read from the environment variable.
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
+if (!API_BASE_URL && process.env.NODE_ENV === 'development') {
+  console.warn("REACT_APP_API_URL is not defined. Using localhost as fallback.");
+}
+
 export const apiFetch = async (url, options = {}, token) => {
-  // Construct the full URL. Example: "https://...onrender.com" + "/api/rooms"
-  const fullUrl = `${API_BASE_URL}${url}`;
+  const fullUrl = `${API_BASE_URL || 'http://127.0.0.1:5000'}${url}`;
   
   const headers = {
     'Content-Type': 'application/json',

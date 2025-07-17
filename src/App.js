@@ -12,20 +12,14 @@ import Admin from './Admin';
 import './App.css'; 
 import { RiLayoutGridFill, RiBarChart2Fill, RiLeafFill, RiSunFill, RiMoonFill, RiLogoutBoxRLine, RiShieldUserFill } from 'react-icons/ri';
 
-// Helper function to determine the correct theme before the first render
 const getInitialTheme = () => {
   const savedTheme = localStorage.getItem('userTheme');
-  if (savedTheme) {
-    return savedTheme;
-  }
+  if (savedTheme) return savedTheme;
   const currentHour = new Date().getHours();
-  // Light theme between 6 AM (inclusive) and 6 PM (exclusive)
   return (currentHour >= 6 && currentHour < 18) ? 'light' : 'dark';
 };
 
-// This is the main layout for the authenticated part of the app
-// It receives the theme toggle function as a prop now
-function AppLayout({ toggleTheme, theme }) {
+function AppLayout({ theme, toggleTheme }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { startTour } = useTour();
@@ -37,7 +31,6 @@ function AppLayout({ toggleTheme, theme }) {
 
   const handleLogout = () => {
     logout();
-    // Clear the manual theme choice on logout so the next user gets the automatic theme
     localStorage.removeItem('userTheme');
     navigate('/login');
   };
@@ -45,10 +38,7 @@ function AppLayout({ toggleTheme, theme }) {
   return (
     <div className="App">
       <nav className="navbar">
-        <div className="navbar-brand">
-          <RiLeafFill className="brand-icon" />
-          <h1>EduSense</h1>
-        </div>
+        <div className="navbar-brand"><RiLeafFill className="brand-icon" /><h1>EduSense</h1></div>
         <div className="nav-links">
           <NavLink to="/" end><RiLayoutGridFill /><span>Dashboard</span></NavLink>
           <NavLink to="/analytics"><RiBarChart2Fill /><span>Analytics</span></NavLink>
@@ -73,17 +63,14 @@ function AppLayout({ toggleTheme, theme }) {
   );
 }
 
-// This is the top-level component that manages the theme for the entire application
 function App() {
   const [theme, setTheme] = React.useState(getInitialTheme);
 
-  // This effect applies the theme class to the body tag
   useEffect(() => {
     document.body.className = '';
     document.body.classList.add(theme);
   }, [theme]);
 
-  // Function to toggle the theme and save the user's choice
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
@@ -97,15 +84,7 @@ function App() {
           <Tour /> 
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route 
-              path="/*" 
-              element={
-                <ProtectedRoute>
-                  {/* Pass the theme state and toggle function down to the layout */}
-                  <AppLayout theme={theme} toggleTheme={toggleTheme} />
-                </ProtectedRoute>
-              } 
-            />
+            <Route path="/*" element={<ProtectedRoute><AppLayout theme={theme} toggleTheme={toggleTheme} /></ProtectedRoute>} />
           </Routes>
         </Router>
       </AuthProvider>
